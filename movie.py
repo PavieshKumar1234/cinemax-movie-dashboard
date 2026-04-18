@@ -12,7 +12,7 @@ st.set_page_config(
 )
 
 # ================================================================
-# CSS — styling only, NO card content in HTML
+# CSS
 # ================================================================
 st.markdown("""
 <style>
@@ -41,6 +41,18 @@ html, body, .stApp {
 #MainMenu, footer, header { visibility: hidden; }
 .block-container { padding-top: 2rem !important; max-width: 1400px !important; }
 
+/* ── CINEMATIC BACKGROUND ── */
+.stApp::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background:
+        url('https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=1920&q=60') center/cover no-repeat fixed;
+    opacity: 0.06;
+    pointer-events: none;
+    z-index: 0;
+}
+
 /* ── FILM GRAIN ── */
 .stApp::before {
     content: '';
@@ -50,6 +62,26 @@ html, body, .stApp {
     pointer-events: none;
     z-index: 9999;
     opacity: 0.6;
+}
+
+/* ── FILM STRIP BACKGROUND DECORATION ── */
+.film-strip-bg {
+    position: fixed;
+    top: 0; right: -20px;
+    width: 60px;
+    height: 100vh;
+    background: repeating-linear-gradient(
+        to bottom,
+        transparent 0px,
+        transparent 30px,
+        rgba(201,168,76,0.04) 30px,
+        rgba(201,168,76,0.04) 35px,
+        transparent 35px,
+        transparent 65px
+    );
+    border-left: 1px solid rgba(201,168,76,0.05);
+    pointer-events: none;
+    z-index: 1;
 }
 
 /* ── MASTHEAD ── */
@@ -71,13 +103,15 @@ html, body, .stApp {
 
 /* ── SIDEBAR ── */
 [data-testid="stSidebar"] {
-    background: var(--surface) !important;
+    background: linear-gradient(180deg, #0D0D14 0%, #111118 100%) !important;
     border-right: 1px solid var(--border) !important;
 }
 [data-testid="stSidebar"] > div:first-child { padding: 2rem 1.5rem; }
 
 /* ── INPUT ── */
-.stTextInput > div > div > input {
+.stTextInput > div > div > input,
+.stNumberInput > div > div > input,
+.stTextArea > div > div > textarea {
     background: var(--surface2) !important;
     border: 1px solid var(--border) !important;
     border-radius: var(--radius-sm) !important;
@@ -86,7 +120,9 @@ html, body, .stApp {
     font-size: 14px !important;
     padding: 10px 14px !important;
 }
-.stTextInput > div > div > input:focus {
+.stTextInput > div > div > input:focus,
+.stNumberInput > div > div > input:focus,
+.stTextArea > div > div > textarea:focus {
     border-color: var(--gold) !important;
     box-shadow: 0 0 0 3px var(--gold-dim) !important;
 }
@@ -112,6 +148,22 @@ html, body, .stApp {
     background: #dbb95a !important;
     transform: translateY(-1px) !important;
     box-shadow: 0 6px 20px var(--gold-glow) !important;
+}
+
+/* ── MANUAL FORM BOX ── */
+.manual-box {
+    background: linear-gradient(135deg, rgba(201,168,76,0.08), rgba(201,168,76,0.02));
+    border: 1px solid rgba(201,168,76,0.35);
+    border-radius: var(--radius);
+    padding: 22px 20px;
+    margin-top: 1rem;
+}
+.manual-box-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 16px;
+    letter-spacing: 3px;
+    color: var(--gold);
+    margin-bottom: 12px;
 }
 
 /* ── STAT TILES ── */
@@ -190,22 +242,28 @@ html, body, .stApp {
     box-shadow: 0 20px 50px rgba(0,0,0,0.6);
     border-color: rgba(201,168,76,0.3);
 }
-
-/* ── CARD IMAGE — override Streamlit img ── */
 .card-wrap [data-testid="stImage"] img {
     border-radius: 0 !important;
     width: 100% !important;
 }
-.card-wrap [data-testid="stImage"] {
-    margin-bottom: 0 !important;
-}
-
-/* ── CARD INNER CONTENT ── */
+.card-wrap [data-testid="stImage"] { margin-bottom: 0 !important; }
 .card-inner { padding: 0 14px; }
 .card-badge {
     display: inline-block;
     background: linear-gradient(135deg, #C9A84C, #9A7A30);
     color: #0A0A0F;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    padding: 3px 10px;
+    border-radius: 4px;
+    margin: 10px 0 6px 0;
+}
+.manual-badge {
+    display: inline-block;
+    background: linear-gradient(135deg, #4a7fc1, #2a4f81);
+    color: #fff;
     font-size: 10px;
     font-weight: 700;
     letter-spacing: 2px;
@@ -264,6 +322,41 @@ html, body, .stApp {
     border-top: 1px solid var(--border);
 }
 
+/* ── HERO BANNER WITH MOVIE COLLAGE ── */
+.hero-collage {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr 1fr;
+    gap: 6px;
+    border-radius: var(--radius);
+    overflow: hidden;
+    margin-bottom: 2rem;
+    height: 180px;
+    position: relative;
+}
+.hero-collage img {
+    width: 100%; height: 100%;
+    object-fit: cover;
+    filter: brightness(0.5) saturate(0.7);
+    transition: filter 0.3s;
+}
+.hero-collage-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg, rgba(10,10,15,0.9) 0%, rgba(10,10,15,0.3) 50%, rgba(10,10,15,0.6) 100%);
+    display: flex;
+    align-items: center;
+    padding: 0 32px;
+}
+.hero-quote {
+    font-family: 'Playfair Display', serif;
+    font-size: 18px;
+    font-style: italic;
+    color: rgba(240,237,232,0.85);
+    max-width: 400px;
+    line-height: 1.5;
+}
+.hero-quote span { color: var(--gold); }
+
 /* ── ANALYTICS ── */
 .chart-header {
     background: var(--surface);
@@ -283,6 +376,12 @@ html, body, .stApp {
     color: var(--muted);
     letter-spacing: 1.5px;
     text-transform: uppercase;
+}
+[data-testid="stVegaLiteChart"] {
+    background: var(--surface) !important;
+    border: 1px solid var(--border) !important;
+    border-radius: 0 0 var(--radius) var(--radius) !important;
+    padding: 12px !important;
 }
 
 /* ── TOP BANNER ── */
@@ -348,16 +447,7 @@ html, body, .stApp {
     margin-top: 3rem;
 }
 
-/* ── HIDE STREAMLIT IMAGE CAPTION ── */
 [data-testid="caption"] { display: none !important; }
-
-/* ── CHART AREA ── */
-[data-testid="stVegaLiteChart"] {
-    background: var(--surface) !important;
-    border: 1px solid var(--border) !important;
-    border-radius: 0 0 var(--radius) var(--radius) !important;
-    padding: 12px !important;
-}
 </style>
 """, unsafe_allow_html=True)
 
@@ -372,13 +462,14 @@ def fetch_movie(name: str):
         data = requests.get(url, timeout=8).json()
         if data.get("Response") == "True":
             return {
-                "title":  data.get("Title", "N/A"),
-                "genre":  data.get("Genre", "N/A"),
-                "rating": float(data["imdbRating"]) if data.get("imdbRating", "N/A") != "N/A" else 0.0,
-                "poster": data["Poster"] if data.get("Poster", "N/A") != "N/A" else None,
-                "year":   data.get("Year", "N/A"),
-                "actors": data.get("Actors", "N/A"),
-                "plot":   data.get("Plot", "N/A"),
+                "title":    data.get("Title", "N/A"),
+                "genre":    data.get("Genre", "N/A"),
+                "rating":   float(data["imdbRating"]) if data.get("imdbRating", "N/A") != "N/A" else 0.0,
+                "poster":   data["Poster"] if data.get("Poster", "N/A") != "N/A" else None,
+                "year":     data.get("Year", "N/A"),
+                "actors":   data.get("Actors", "N/A"),
+                "plot":     data.get("Plot", "N/A"),
+                "manual":   False,
             }
     except Exception:
         pass
@@ -390,6 +481,10 @@ def fetch_movie(name: str):
 # ================================================================
 if "movies" not in st.session_state:
     st.session_state.movies = []
+if "show_manual_form" not in st.session_state:
+    st.session_state.show_manual_form = False
+if "pending_manual_title" not in st.session_state:
+    st.session_state.pending_manual_title = ""
 
 
 # ================================================================
@@ -403,7 +498,7 @@ with st.sidebar:
     )
     st.markdown(
         "<div style='font-size:10px;letter-spacing:3px;text-transform:uppercase;"
-        "color:#7A7A8C;margin-bottom:0.6rem;font-weight:500'>Search</div>",
+        "color:#7A7A8C;margin-bottom:0.6rem;font-weight:500'>Search Movie</div>",
         unsafe_allow_html=True
     )
 
@@ -416,19 +511,64 @@ with st.sidebar:
 
     if add_clicked:
         if movie_input.strip():
-            with st.spinner("Fetching…"):
+            with st.spinner("Fetching from OMDB…"):
                 movie = fetch_movie(movie_input.strip())
             if movie:
                 existing = [m["title"].lower() for m in st.session_state.movies]
                 if movie["title"].lower() not in existing:
                     st.session_state.movies.append(movie)
                     st.success(f"✓ Added: {movie['title']}")
+                    st.session_state.show_manual_form = False
                 else:
                     st.warning("Already in collection.")
             else:
-                st.error("Movie not found. Try another title.")
+                # Trigger manual form
+                st.session_state.show_manual_form = True
+                st.session_state.pending_manual_title = movie_input.strip()
+                st.warning("Not found in database. Enter details manually ↓")
         else:
             st.warning("Enter a movie name first.")
+
+    # ── MANUAL ENTRY FORM ──
+    if st.session_state.show_manual_form:
+        st.markdown(
+            "<div class='manual-box'>"
+            "<div class='manual-box-title'>✏️ Manual Entry</div>"
+            "</div>",
+            unsafe_allow_html=True
+        )
+        with st.form("manual_movie_form", clear_on_submit=True):
+            m_title  = st.text_input("Title *", value=st.session_state.pending_manual_title)
+            m_year   = st.text_input("Year", placeholder="e.g. 2023")
+            m_genre  = st.text_input("Genre", placeholder="e.g. Drama, Action")
+            m_rating = st.number_input("Your Rating (0–10)", min_value=0.0, max_value=10.0, step=0.1, value=7.0)
+            m_actors = st.text_input("Actors", placeholder="e.g. Actor A, Actor B")
+            m_plot   = st.text_area("Plot / Description", placeholder="Brief plot summary…", height=90)
+            m_poster = st.text_input("Poster URL (optional)", placeholder="https://…")
+            submitted = st.form_submit_button("➕ Add Manually")
+
+            if submitted:
+                if m_title.strip():
+                    existing = [m["title"].lower() for m in st.session_state.movies]
+                    if m_title.strip().lower() not in existing:
+                        st.session_state.movies.append({
+                            "title":  m_title.strip(),
+                            "year":   m_year.strip() or "N/A",
+                            "genre":  m_genre.strip() or "N/A",
+                            "rating": float(m_rating),
+                            "actors": m_actors.strip() or "N/A",
+                            "plot":   m_plot.strip() or "N/A",
+                            "poster": m_poster.strip() if (m_poster and m_poster.strip().startswith("http")) else None,
+                            "manual": True,
+                        })
+                        st.success(f"✓ Manually added: {m_title.strip()}")
+                        st.session_state.show_manual_form = False
+                        st.session_state.pending_manual_title = ""
+                        st.rerun()
+                    else:
+                        st.warning("Already in collection.")
+                else:
+                    st.error("Title is required.")
 
     if st.session_state.movies:
         st.markdown(
@@ -447,6 +587,7 @@ with st.sidebar:
         st.write("")
         if st.button("🗑  Clear All"):
             st.session_state.movies = []
+            st.session_state.show_manual_form = False
             st.rerun()
 
 
@@ -461,12 +602,42 @@ st.markdown(
     "color:#7A7A8C;padding-bottom:10px'>Movie Intelligence Dashboard</span>"
     "</div>"
     "<div style='height:1px;background:linear-gradient(90deg,#C9A84C,transparent);"
-    "margin-bottom:2.5rem;margin-top:0.5rem'></div>",
+    "margin-bottom:1.5rem;margin-top:0.5rem'></div>",
     unsafe_allow_html=True
 )
 
-df = pd.DataFrame(st.session_state.movies)
+# ── CINEMATIC HERO BANNER ──
+st.markdown("""
+<div style="position:relative;border-radius:16px;overflow:hidden;margin-bottom:2rem;height:180px;">
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;height:100%;gap:4px;">
+        <img src="https://images.unsplash.com/photo-1517604931442-7e0c8ed2963c?w=400&q=60"
+             style="width:100%;height:100%;object-fit:cover;filter:brightness(0.45) saturate(0.6);">
+        <img src="https://images.unsplash.com/photo-1485846234645-a62644f84728?w=400&q=60"
+             style="width:100%;height:100%;object-fit:cover;filter:brightness(0.45) saturate(0.6);">
+        <img src="https://images.unsplash.com/photo-1440404653325-ab127d49abc1?w=400&q=60"
+             style="width:100%;height:100%;object-fit:cover;filter:brightness(0.45) saturate(0.6);">
+        <img src="https://images.unsplash.com/photo-1478720568477-152d9b164e26?w=400&q=60"
+             style="width:100%;height:100%;object-fit:cover;filter:brightness(0.45) saturate(0.6);">
+    </div>
+    <div style="position:absolute;inset:0;
+        background:linear-gradient(90deg,rgba(10,10,15,0.92) 0%,rgba(10,10,15,0.35) 60%,rgba(10,10,15,0.7) 100%);
+        display:flex;align-items:center;padding:0 36px;">
+        <div>
+            <div style="font-size:10px;letter-spacing:4px;text-transform:uppercase;
+                color:#C9A84C;font-weight:600;margin-bottom:10px;">Cinema Begins Here</div>
+            <div style="font-family:'Playfair Display',serif;font-size:20px;
+                font-style:italic;color:rgba(240,237,232,0.9);line-height:1.5;max-width:480px;">
+                "Every frame is a painting.<br>Every story, a world entire."
+            </div>
+            <div style="font-size:11px;color:#7A7A8C;margin-top:10px;letter-spacing:2px;">
+                — Track, rate and analyse your cinematic universe
+            </div>
+        </div>
+    </div>
+</div>
+""", unsafe_allow_html=True)
 
+df = pd.DataFrame(st.session_state.movies)
 
 # ================================================================
 # EMPTY STATE
@@ -476,7 +647,7 @@ if df.empty:
     <div class="empty-state">
         <div class="empty-icon">🎞️</div>
         <div class="empty-title">Your Collection Awaits</div>
-        <div class="empty-text">Search for any movie in the sidebar to get started</div>
+        <div class="empty-text">Search for any movie in the sidebar — or add one manually if it's not in the database</div>
     </div>
     """, unsafe_allow_html=True)
 
@@ -487,6 +658,7 @@ else:
     avg_rating  = df["rating"].mean()
     top_movie   = df.loc[df["rating"].idxmax()]
     genre_count = df["genre"].str.split(", ").explode().nunique()
+    manual_count = int(df["manual"].sum()) if "manual" in df.columns else 0
 
     # ── STAT TILES ──
     st.markdown(f"""
@@ -494,7 +666,7 @@ else:
         <div class="stat-tile">
             <div class="stat-label">Films Catalogued</div>
             <div class="stat-value">{len(df)}</div>
-            <div class="stat-desc">In your collection</div>
+            <div class="stat-desc">In your collection ({int(manual_count)} manual)</div>
         </div>
         <div class="stat-tile">
             <div class="stat-label">Average IMDb Rating</div>
@@ -513,72 +685,60 @@ else:
     st.markdown('<div class="section-heading">COLLECTION</div>', unsafe_allow_html=True)
     st.markdown('<div class="section-sub">Your curated film library</div>', unsafe_allow_html=True)
 
-    # ── MOVIE CARDS — rendered with native Streamlit (no HTML injection per card) ──
+    # ── MOVIE CARDS ──
     cols = st.columns(4, gap="medium")
 
     for i, row in df.iterrows():
         col = cols[i % 4]
-        is_top = row["title"] == top_movie["title"]
+        is_top    = row["title"] == top_movie["title"]
+        is_manual = bool(row["manual"]) if "manual" in df.columns else False
 
         with col:
-            # Card wrapper opens
             st.markdown('<div class="card-wrap">', unsafe_allow_html=True)
 
-            # Poster — native st.image (always works, no HTML needed)
-            if row["poster"]:
-                st.image(row["poster"], use_container_width=True)
+            # Poster — safely handle None, NaN, float, empty string
+            poster_val = row.get("poster", None)
+            has_poster = (
+                poster_val is not None
+                and isinstance(poster_val, str)
+                and poster_val.strip().startswith("http")
+            )
+            if has_poster:
+                st.image(poster_val.strip(), use_container_width=True)
             else:
+                # Fallback: cinematic placeholder from Unsplash
+                placeholder_urls = [
+                    "https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=300&q=50",
+                    "https://images.unsplash.com/photo-1524985069026-dd778a71c7b4?w=300&q=50",
+                    "https://images.unsplash.com/photo-1536440136628-849c177e76a1?w=300&q=50",
+                    "https://images.unsplash.com/photo-1574267432553-4b4628081c31?w=300&q=50",
+                ]
+                ph = placeholder_urls[i % len(placeholder_urls)]
                 st.markdown(
-                    "<div style='width:100%;aspect-ratio:2/3;background:#1A1A26;"
-                    "display:flex;align-items:center;justify-content:center;"
-                    "font-size:48px'>🎬</div>",
+                    f"<div style='position:relative;overflow:hidden;'>"
+                    f"<img src='{ph}' style='width:100%;aspect-ratio:2/3;object-fit:cover;"
+                    f"filter:brightness(0.5) saturate(0.5);'>"
+                    f"<div style='position:absolute;inset:0;display:flex;align-items:center;"
+                    f"justify-content:center;font-size:40px;'>🎬</div></div>",
                     unsafe_allow_html=True
                 )
 
-            # Card body — all static HTML, no dynamic text injected
             st.markdown('<div class="card-inner">', unsafe_allow_html=True)
 
             if is_top:
                 st.markdown('<div class="card-badge">⭐ Top Rated</div>', unsafe_allow_html=True)
+            if is_manual:
+                st.markdown('<div class="manual-badge">✏️ Manual Entry</div>', unsafe_allow_html=True)
 
-            # Year — use st.caption styled via write
-            st.markdown(
-                f"<div class='card-year'>{row['year']}</div>",
-                unsafe_allow_html=True
-            )
+            st.markdown(f"<div class='card-year'>{row['year']}</div>", unsafe_allow_html=True)
+            st.markdown(f"<div class='card-title'>{row['title']}</div>", unsafe_allow_html=True)
+            st.markdown(f"<div class='card-genre'>{row['genre']}</div>", unsafe_allow_html=True)
+            st.markdown(f"<div class='card-rating'>★ {row['rating']:.1f}</div>", unsafe_allow_html=True)
+            st.markdown(f"<div class='card-actors'>{row['actors']}</div>", unsafe_allow_html=True)
+            st.markdown(f"<div class='card-plot'>{row['plot']}</div>", unsafe_allow_html=True)
 
-            # Title — native st.markdown plain text (** bold **)
-            st.markdown(
-                f"<div class='card-title'>{row['title']}</div>",
-                unsafe_allow_html=True
-            )
-
-            # Genre
-            st.markdown(
-                f"<div class='card-genre'>{row['genre']}</div>",
-                unsafe_allow_html=True
-            )
-
-            # Rating badge
-            st.markdown(
-                f"<div class='card-rating'>★ {row['rating']:.1f}</div>",
-                unsafe_allow_html=True
-            )
-
-            # Actors
-            st.markdown(
-                f"<div class='card-actors'>{row['actors']}</div>",
-                unsafe_allow_html=True
-            )
-
-            # Plot
-            st.markdown(
-                f"<div class='card-plot'>{row['plot']}</div>",
-                unsafe_allow_html=True
-            )
-
-            st.markdown('</div>', unsafe_allow_html=True)  # close card-inner
-            st.markdown('</div>', unsafe_allow_html=True)  # close card-wrap
+            st.markdown('</div>', unsafe_allow_html=True)
+            st.markdown('</div>', unsafe_allow_html=True)
 
     # ── ANALYTICS ──
     st.markdown('<div class="section-heading">ANALYTICS</div>', unsafe_allow_html=True)
